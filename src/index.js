@@ -2,6 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+
+// + Display the location for each move in the format (col, row) in the move history list.
+// + Bold the currently selected item in the move list.
+// + Rewrite Board to use two loops to make the squares instead of hardcoding them.
+// - Add a toggle button that lets you sort the moves in either ascending or descending order.
+// - When someone wins, highlight the three squares that caused the win.
+// - When no one wins, display a message about the result being a draw
+
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -13,7 +21,7 @@ function Square(props) {
 class Board extends React.Component {
   renderSquare(i) {
     return (
-      <Square 
+      <Square key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
       />
@@ -23,21 +31,13 @@ class Board extends React.Component {
   render() {
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        {[0,3,6].map(row => {
+          return (
+            <div key={row} className="board-row">
+              {[0,1,2].map(col => this.renderSquare(col+row))}
+            </div>
+            )
+        })}
       </div>
     );
   }
@@ -66,7 +66,8 @@ class Game extends React.Component {
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       history: history.concat([{
-        squares: squares
+        squares: squares,
+        lastClickedSquare: i
       }]),
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext
@@ -80,6 +81,40 @@ class Game extends React.Component {
     });
   }
 
+  getCoordinate(move) {
+    // [0, 1, 2],
+    // [3, 4, 5],
+    // [6, 7, 8],
+    const lastClickedSquare = this.state.history[move].lastClickedSquare;
+    return [this.getCol(lastClickedSquare), this.getRow(lastClickedSquare)]
+  }
+
+  getRow(squareIndex) {
+    switch (squareIndex) {
+      case 0: case 1: case 2:
+        return 1;
+      case 3: case 4: case 5:
+        return 2;
+      case 6: case 7: case 8:
+        return 3;
+      default:
+        return -1;
+    }
+  }
+
+  getCol(squareIndex) {
+    switch (squareIndex) {
+      case 0: case 3: case 6:
+        return 1;
+      case 1: case 4: case 7:
+        return 2;
+      case 2: case 5: case 8:
+        return 3;
+      default:
+        return -1;
+    }
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
@@ -87,11 +122,11 @@ class Game extends React.Component {
     
     const moves = history.map((step, move) => {
       const desc = move ? 
-        'Go to move #' + move :
+        'Go to move #' + move + " (" + this.getCoordinate(move) + ")" :
         'Go to game start';
         return (
           <li key={move}>
-            <button onClick={() => this.jumpTo(move)}>{desc}</button>
+            <button className="move-list-button" onClick={() => this.jumpTo(move)}>{desc}</button>
           </li>
         );
     });
