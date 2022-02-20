@@ -7,6 +7,10 @@ ol, ul {
   padding-left: 30px;
 }
 
+ol {
+  margin-top: 5px;
+}
+
 .board-row:after {
   clear: both;
   content: "";
@@ -49,6 +53,10 @@ ol, ul {
   margin-left: 20px;
 }
 
-.move-list-button:focus {
+.move-list-btn:focus {
   font-weight: bold;
+}
+
+.history-order-btn {
+  margin: 10px 0 0 30px;
 }

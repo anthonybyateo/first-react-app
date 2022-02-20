@@ -6,7 +6,7 @@ import './index.css';
 // + Display the location for each move in the format (col, row) in the move history list.
 // + Bold the currently selected item in the move list.
 // + Rewrite Board to use two loops to make the squares instead of hardcoding them.
-// - Add a toggle button that lets you sort the moves in either ascending or descending order.
+// + Add a toggle button that lets you sort the moves in either ascending or descending order.
 // - When someone wins, highlight the three squares that caused the win.
 // - When no one wins, display a message about the result being a draw
 
@@ -51,7 +51,8 @@ class Game extends React.Component {
         squares: Array(9).fill(null)
       }],
       stepNumber: 0,
-      xIsNext: true
+      xIsNext: true,
+      isASC: true,
     }
   }
 
@@ -115,6 +116,10 @@ class Game extends React.Component {
     }
   }
 
+  reorder() {
+    this.setState({ isASC: !this.state.isASC });
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
@@ -126,10 +131,14 @@ class Game extends React.Component {
         'Go to game start';
         return (
           <li key={move}>
-            <button className="move-list-button" onClick={() => this.jumpTo(move)}>{desc}</button>
+            <button className="move-list-btn" onClick={() => this.jumpTo(move)}>{desc}</button>
           </li>
         );
     });
+
+    if(!this.state.isASC) {
+      moves.reverse();
+    }
     
     let status;
     if (winner) status = 'Winner: ' + winner;
@@ -145,6 +154,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <button className="history-order-btn" onClick={() => this.reorder()}>re-oreder</button>
           <ol>{moves}</ol>
         </div>
       </div>
